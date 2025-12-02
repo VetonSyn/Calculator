@@ -7,5 +7,5 @@ I have have added a Breakout prop firm lot size calculator. The data is live fet
 For the moment it's working only for BTC, ETH and SOL
 
 
-Check it live: https://vetonsyn.github.io/crypto-risk-calculator/
+Check it live: https://vetonsyn.github.io/Calculator
 
