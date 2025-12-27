@@ -1,370 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Risk Calculators</title>
-      <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <title>Pro Crypto Risk Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: #191919;
-            padding: 2rem;
-            color: white;
+        :root {
+            --bg-main: #0b0e11;
+            --bg-card: #181a20;
+            --accent-blue: #2f80ed;
+            --accent-green: #02c076;
+            --accent-red: #f84960;
+            --text-muted: #848e9c;
+            --border-color: #2b2f36;
         }
 
-        .tab-content {
-            margin-top: 2rem;
+        body { 
+            background-color: var(--bg-main); 
+            color: #eaecef; 
+            font-family: 'Inter', sans-serif;
+            padding-bottom: 3rem;
         }
 
-        .dark-row {
-            background-color: #343a40;
-            color: white;
+        .container { max-width: 1000px; margin-top: 2rem; }
+
+        /* Tabs Styling */
+        .nav-tabs { border-bottom: 1px solid var(--border-color); gap: 10px; }
+        .nav-link { 
+            color: var(--text-muted); 
+            border: none !important; 
+            font-weight: 600;
+            transition: 0.3s;
+            padding: 12px 20px;
+        }
+        .nav-link:hover { color: #fff; }
+        .nav-link.active { 
+            background: none !important; 
+            color: var(--accent-blue) !important; 
+            border-bottom: 3px solid var(--accent-blue) !important; 
         }
 
-        .highlight-red {
-            background-color: #dc3545;
-            color: white;
+        /* Card & Input Styling */
+        .calc-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        .highlight-green {
-            background-color: #d4edda;
-            color: #155724;
+        .form-label { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; }
+        
+        .form-control, .form-select {
+            background-color: #2b2f36;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .form-control:focus {
+            background-color: #2b2f36;
+            border-color: var(--accent-blue);
+            box-shadow: none;
+            color: #fff;
         }
 
-        .highlight-blue {
-            background-color: #001f4d;
-            color: white;
-        }
+        .input-group-text { background-color: #2b2f36; border-color: var(--border-color); color: var(--text-muted); }
 
-        .highlight-green-dark {
-            background-color: #abdeb0;
-            color: #155724;
+        /* Result Items */
+        .result-box {
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+        .res-risk { border-left: 4px solid var(--accent-red); background: rgba(248, 73, 96, 0.1); }
+        .res-tp { border-left: 4px solid var(--accent-green); background: rgba(2, 192, 118, 0.1); }
+        .res-info { border-left: 4px solid #495057; background: rgba(73, 80, 87, 0.1); }
+        .res-margin { border-left: 4px solid var(--accent-blue); background: rgba(47, 128, 237, 0.1); }
 
-        .highlight {
-            background-color: #343a40;
-            color: white;
+        .total-highlight {
+            background: var(--accent-green);
+            color: #000;
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .total-pct { font-size: 0.9rem; font-weight: 400; display: block; opacity: 0.8; }
+
+        .btn-primary { 
+            background-color: var(--accent-blue); 
+            border: none; 
+            padding: 12px; 
+            font-weight: 700; 
+            border-radius: 8px;
+            width: 100%;
+            transition: 0.2s;
+        }
+        .btn-primary:hover { background-color: #256ac2; transform: translateY(-1px); }
+
+        @media (max-width: 768px) {
+            .result-box { flex-direction: column; align-items: flex-start; gap: 5px; }
+            .result-box span:last-child { align-self: flex-end; font-weight: bold; }
         }
     </style>
 </head>
-
 <body>
-    <div class="d-inline-flex w-75 text-white justify-content-start">
-        <div class="container" style="margin-left: 1rem;">
-            <ul class="nav nav-tabs" id="calculatorTabs" role="tablist">
-                <li class="nav-item">
-                    <button class="nav-link active" id="normal-tab" data-bs-toggle="tab"
-                        data-bs-target="#normalCalculator" type="button" role="tab">Normal Crypto Calculator</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" id="lot-tab" data-bs-toggle="tab" data-bs-target="#lotCalculator"
-                        type="button" role="tab">Breakout Prop Lot Calculator</button>
-                </li>
-            </ul>
 
-            <div class="tab-content">
-                <!-- Normal Calculator  -->
-                <div class="tab-pane fade show active" id="normalCalculator" role="tabpanel">
-                    <h2 class="mb-4">Normal Crypto Calculator</h2>
-                    <div class="row g-3 justify-content-start">
-                        <div class="col-md-4">
-                            <label class="form-label">Account Size ($)</label>
-                            <input type="number" class="form-control" id="accountSize" value="1000">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Risk Percentage (%)</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="riskPercent" value="0.6" step="0.1">
-                                <div class="input-group-text">
-                                    <input class="form-check-input mt-0" type="checkbox" id="onePercentToggle"
-                                        title="Use 1% risk">
-                                    &nbsp;Use 1%
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Stoploss Percentage (%)</label>
-                            <input type="number" class="form-control bg-warning" id="stoplossPercent" value="0.6">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">TP1 (R)</label>
-                            <input type="number" class="form-control" id="tp1" value="2">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">TP2 (R)</label>
-                            <input type="number" class="form-control" id="tp2" value="3">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">TP3 (R)</label>
-                            <input type="number" class="form-control" id="tp3" value="4">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">TP4 (R)</label>
-                            <input type="number" class="form-control" id="tp4" value="5">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Leverage (x)</label>
-                            <input type="number" class="form-control" id="leverage" value="10">
-                        </div>
+<div class="container">
+    <ul class="nav nav-tabs" id="calcTabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#normal" type="button">Normal Calculator</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#breakout" type="button">Breakout Prop</button></li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="normal">
+            <div class="calc-card">
+                <div class="row g-3">
+                    <div class="col-md-4"><label class="form-label">Account Size ($)</label><input type="number" class="form-control" id="acc1" value="1000"></div>
+                    <div class="col-md-4">
+                        <label class="form-label">Risk %</label>
+                        <div class="input-group"><input type="number" class="form-control" id="risk1" value="1"><div class="input-group-text"><input type="checkbox" id="lock1" checked>&nbsp;1%</div></div>
                     </div>
-
-                    <button class="btn btn-primary mt-4" onclick="calculateRisk()">Calculate</button>
-
-                    <div class="mt-4">
-                        <ul class="list-group border-0">
-                            <li class="list-group-item highlight-red" style="">Risk Amount: <strong
-                                    id="riskAmount"></strong>
-                            </li>
-                            <li class="list-group-item highlight-green">Totale Reward TP1: <strong
-                                    id="tpReward1"></strong>
-                            </li>
-                            <li class="list-group-item highlight-green">Totale Reward TP2: <strong
-                                    id="tpReward2"></strong>
-                            </li>
-                            <li class="list-group-item highlight-green">Totale Reward TP3: <strong
-                                    id="tpReward3"></strong>
-                            </li>
-                            <li class="list-group-item highlight-green">Totale Reward TP4: <strong
-                                    id="tpReward4"></strong>
-                            </li>
-                            <li class="list-group-item dark-row">Position Size: <strong id="positionSize"></strong></li>
-                            <li class="list-group-item highlight-blue">Margin Required: <strong
-                                    id="marginRequired"></strong>
-                            </li>
-                        </ul>
-                    </div>
-                    <script>
-                        function calculateRisk() {
-                            const account = parseFloat(document.getElementById("accountSize").value);
-                            const risk = parseFloat(document.getElementById("riskPercent").value);
-                            const stoploss = parseFloat(document.getElementById("stoplossPercent").value);
-                            const tp1 = parseFloat(document.getElementById("tp1").value);
-                            const tp2 = parseFloat(document.getElementById("tp2").value);
-                            const tp3 = parseFloat(document.getElementById("tp3").value);
-                            const tp4 = parseFloat(document.getElementById("tp4").value);
-                            const leverage = parseFloat(document.getElementById("leverage").value);
-
-                            const riskAmount = (account * risk) / 100;
-                            const positionSize = (riskAmount * 100) / stoploss;
-
-                            const reward1 = riskAmount * tp1;
-                            const reward2 = riskAmount * tp2;
-                            const reward3 = riskAmount * tp3;
-                            const reward4 = riskAmount * tp4;
-
-                            const marginRequired = positionSize / leverage;
-
-                            document.getElementById("riskAmount").innerText = "$" + riskAmount.toFixed(2);
-                            document.getElementById("tpReward1").innerText = `$${reward1.toFixed(2)} (+${((reward1 / account) * 100).toFixed(1)}%)`;
-                            document.getElementById("tpReward2").innerText = `$${reward2.toFixed(2)} (+${((reward2 / account) * 100).toFixed(1)}%)`;
-                            document.getElementById("tpReward3").innerText = `$${reward3.toFixed(2)} (+${((reward3 / account) * 100).toFixed(1)}%)`;
-                            document.getElementById("tpReward4").innerText = `$${reward4.toFixed(2)} (+${((reward4 / account) * 100).toFixed(1)}%)`;
-                            document.getElementById("positionSize").innerText = "$" + positionSize.toFixed(2);
-                            document.getElementById("marginRequired").innerText = "$" + marginRequired.toFixed(2);
-                        }
-
-                        const riskInput = document.getElementById("riskPercent");
-                        const onePercentToggle = document.getElementById("onePercentToggle");
-
-                        let originalRiskValue = riskInput.value;
-
-                        onePercentToggle.addEventListener("change", function () {
-                            if (this.checked) {
-                                originalRiskValue = riskInput.value;
-                                riskInput.value = 1;
-                            } else {
-                                riskInput.value = originalRiskValue;
-                            }
-                            calculateRisk(); // Re-calculate after check
-                        });
-
-                    </script>
-
+                    <div class="col-md-4"><label class="form-label">Stoploss %</label><input type="number" class="form-control" style="border-color: #f39c12;" id="sl1" value="0.6"></div>
+                    <div class="col-6 col-md-3"><label class="form-label">TP1 (R) | %</label><div class="d-flex"><input type="number" class="form-control me-1" id="tp1_1" value="2"><input type="number" class="form-control" id="p1_1" value="25" oninput="balance(1,'p1_')"></div></div>
+                    <div class="col-6 col-md-3"><label class="form-label">TP2 (R) | %</label><div class="d-flex"><input type="number" class="form-control me-1" id="tp1_2" value="3"><input type="number" class="form-control" id="p1_2" value="25" oninput="balance(2,'p1_')"></div></div>
+                    <div class="col-6 col-md-3"><label class="form-label">TP3 (R) | %</label><div class="d-flex"><input type="number" class="form-control me-1" id="tp1_3" value="4"><input type="number" class="form-control" id="p1_3" value="25" oninput="balance(3,'p1_')"></div></div>
+                    <div class="col-6 col-md-3"><label class="form-label">TP4 (R) | %</label><div class="d-flex"><input type="number" class="form-control me-1" id="tp1_4" value="5"><input type="number" class="form-control" id="p1_4" value="25" oninput="balance(4,'p1_')"></div></div>
+                    <div class="col-md-6"><label class="form-label">Leverage (x)</label><input type="number" class="form-control" id="lev1" value="10"></div>
+                    <div class="col-md-6 d-flex align-items-end"><button class="btn btn-primary" onclick="calc1()">Calculate Risk</button></div>
                 </div>
 
-                <!-- Breakout Lot Size Calculator -->
-                <div class="tab-pane fade" id="lotCalculator" role="tabpanel">
-                    <h2 class="mb-4">Breakout Prop Lot Size Calculator</h2>
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Account Size ($)</label>
-                            <input type="number" class="form-control" id="accountSize2" value="5000">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Risk Percentage (%)</label>
-                            <input type="number" class="form-control" id="riskPercent2" value="0.5">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Stoploss Percentage (%)</label>
-                            <input type="number" class="form-control bg-warning" id="stoplossPercent2" value="0.6">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Select Pair</label>
-                            <select class="form-select" id="pairSelect">
-                                <option value="BTCUSDT">BTC</option>
-                                <option value="ETHUSDT">ETH</option>
-                                <option value="SOLUSDT">SOL</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Use limit order</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="useLimit">
-                                <label class="form-check-label" for="useLimit">Enable</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4" id="limitPriceContainer" style="display: none;">
-                            <label class="form-label">Limit price order($)</label>
-                            <input type="number" class="form-control" id="limitPrice" value="">
-                        </div>
-                    </div>
-
-                    <button class="btn btn-primary mt-4" onclick="calculateLotSize()">Calculate</button>
-                    <button class="btn btn-secondary mt-4 ms-2" onclick="refreshData()">Refresh price data</button>
-
-                    <div class="mt-4">
-                        <ul class="list-group border-0">
-                            <li class="list-group-item highlight-red">Risk Amount: <strong id="riskAmount2"></strong>
-                            </li>
-                            <li class="list-group-item highlight-green">TP1 (1R):
-                                <strong id="tp1Profit"></strong>
-                            </li>
-                            <li class="list-group-item highlight-green">TP2 (2R):
-                                <strong id="tp2Profit"></strong>
-                            </li>
-                            <li class="list-group-item highlight-green">TP3 (3R):
-                                <strong id="tp3Profit"></strong>
-                            </li>
-                            <li class="list-group-item highlight-green">TP4 (4R):
-                                <strong id="tp4Profit"></strong>
-                            </li>
-                            <li
-                                class="list-group-item highlight-green-dark d-flex justify-content-between align-items-center">
-                                <div>
-                                    Lot Size:
-                                    <strong id="lotSize"></strong>
-                                    <button class="btn btn-sm btn-outline-success ms-3"
-                                        onclick="copyLotSize()">Copy</button>
-                                    <span id="copyConfirm" class="ms-2 text-success" style="display: none;">Lot size
-                                        copied</span>
-                                </div>
-                            </li>
-                            <li class="list-group-item dark-row">Current Price: <strong id="pairPrice"></strong>
-                            </li>
-                            <li class="list-group-item dark-row">Stoploss ($): <strong id="stopLossDollar"></strong>
-                            </li>
-                            <li class="list-group-item highlight-blue">Margin Required: <strong
-                                    id="requiredMargin"></strong>
-                            </li>
-                            <li class="list-group-item highlight-blue">Fees (0.035%): <strong id="fees"></strong></li>
-                            <li class="list-group-item text-muted">Last update: <strong id="lastUpdate"></strong>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="mt-4">
+                    <div class="result-box res-risk"><span>Risk Amount:</span><span id="outRisk1">$0.00</span></div>
+                    <div id="tpResults1"></div>
+                    <div class="total-highlight">TOTAL SCALING PROFIT: <span id="totalP1">$0.00</span><span class="total-pct" id="totalPct1">Account Profit: 0.00%</span></div>
+                    <div class="result-box res-info"><span>Position Size:</span><span id="pos1">$0.00</span></div>
+                    <div class="result-box res-margin"><span>Margin Required:</span><span id="margin1">$0.00</span></div>
                 </div>
-                <script>
-                    const pairMap = {
-                        BTCUSDT: { symbol: "BTCUSDT", leverage: 5 },
-                        ETHUSDT: { symbol: "ETHUSDT", leverage: 5 },
-                        SOLUSDT: { symbol: "SOLUSDT", leverage: 2 }
-                    };
-
-                    async function fetchPriceBybit(symbol) {
-                        const url = `https://api.bybit.com/v5/market/tickers?category=linear&symbol=${symbol}`;
-                        try {
-                            const res = await fetch(url);
-                            const data = await res.json();
-                            return parseFloat(data.result.list[0].lastPrice);
-                        } catch (error) {
-                            console.error("Fout bij het ophalen van prijs van Bybit:", error);
-                            return null;
-                        }
-                    }
-
-                    function updateTimestamp() {
-                        const now = new Date();
-                        document.getElementById("lastUpdate").innerText = now.toLocaleString();
-                    }
-
-                    async function calculateLotSize() {
-                        const account = parseFloat(document.getElementById("accountSize2").value);
-                        const riskPercent = parseFloat(document.getElementById("riskPercent2").value);
-                        const stoplossPercent = parseFloat(document.getElementById("stoplossPercent2").value);
-                        const pair = document.getElementById("pairSelect").value;
-                        const useLimit = document.getElementById("useLimit").checked;
-                        const leverage = pairMap[pair].leverage;
-                        const feeRate = 0.00035;
-
-                        let price;
-                        if (useLimit) {
-                            price = parseFloat(document.getElementById("limitPrice").value);
-                        } else {
-                            price = await fetchPriceBybit(pair);
-                        }
-                        if (!price || isNaN(price)) return;
-
-                        const riskAmount2 = (account * riskPercent) / 100;
-                        const stopLossDollar = price * (stoplossPercent / 100);
-                        const lotSize = riskAmount2 / stopLossDollar;
-                        const requiredMargin = (price * lotSize) / leverage;
-                        const totalFees = (lotSize * price * feeRate * 2); // open + close fees
-
-                        document.getElementById("riskAmount2").innerText = "$" + riskAmount2.toFixed(2);
-                        document.getElementById("pairPrice").innerText = "$" + price.toFixed(2);
-                        document.getElementById("stopLossDollar").innerText = "$" + stopLossDollar.toFixed(2);
-                        document.getElementById("lotSize").innerText = lotSize.toFixed(6);
-                        document.getElementById("requiredMargin").innerText = "$" + requiredMargin.toFixed(2);
-                        document.getElementById("fees").innerText = "$" + totalFees.toFixed(2);
-
-                        for (let i = 1; i <= 4; i++) {
-                            const tpPrice = price + (stopLossDollar * i);
-                            const tpProfit = (stopLossDollar * i * lotSize) - totalFees;
-                            document.getElementById("tp" + i).innerText = "$" + tpPrice.toFixed(2);
-                            document.getElementById("tp" + i + "Profit").innerText = "$" + tpProfit.toFixed(2);
-                        }
-
-                        updateTimestamp();
-                    }
-
-                    async function refreshData() {
-                        if (!document.getElementById("useLimit").checked) {
-                            await calculateLotSize();
-                        }
-                    }
-
-                    document.getElementById("useLimit").addEventListener("change", function () {
-                        const limitContainer = document.getElementById("limitPriceContainer");
-                        if (this.checked) {
-                            limitContainer.style.display = "block";
-                        } else {
-                            limitContainer.style.display = "none";
-                            refreshData();
-                        }
-                    });
-                </script>
-
-                <script>
-                    function copyLotSize() {
-                        const lotSizeText = document.getElementById("lotSize").innerText;
-                        navigator.clipboard.writeText(lotSizeText).then(() => {
-                            const confirm = document.getElementById("copyConfirm");
-                            confirm.style.display = "inline";
-                            setTimeout(() => {
-                                confirm.style.display = "none";
-                            }, 2000);
-                        }).catch(err => {
-                            console.error("Kopiëren mislukt:", err);
-                        });
-                    }
-                </script>
             </div>
+        </div>
 
+        <div class="tab-pane fade" id="breakout">
+            <div class="calc-card">
+                <div class="row g-3">
+                    <div class="col-md-4"><label class="form-label">Account Size ($)</label><input type="number" class="form-control" id="acc2" value="5000"></div>
+                    <div class="col-md-4"><label class="form-label">Risk %</label><input type="number" class="form-control" id="risk2" value="0.5"></div>
+                    <div class="col-md-4"><label class="form-label">Stoploss %</label><input type="number" class="form-control" style="border-color: #f39c12;" id="sl2" value="0.6"></div>
+                    <div class="col-6 col-md-3"><label class="form-label">TP1 (1R) | %</label><input type="number" class="form-control" id="p2_1" value="25" oninput="balance(1,'p2_')"></div>
+                    <div class="col-6 col-md-3"><label class="form-label">TP2 (2R) | %</label><input type="number" class="form-control" id="p2_2" value="25" oninput="balance(2,'p2_')"></div>
+                    <div class="col-6 col-md-3"><label class="form-label">TP3 (3R) | %</label><input type="number" class="form-control" id="p2_3" value="25" oninput="balance(3,'p2_')"></div>
+                    <div class="col-6 col-md-3"><label class="form-label">TP4 (4R) | %</label><input type="number" class="form-control" id="p2_4" value="25" oninput="balance(4,'p2_')"></div>
+                    <div class="col-md-6">
+                        <label class="form-label">Pair</label>
+                        <select class="form-select" id="pair"><option value="BTCUSDT">BTC</option><option value="ETHUSDT">ETH</option><option value="SOLUSDT">SOL</option></select>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end"><button class="btn btn-primary" onclick="calc2()">Calculate Lot Size</button></div>
+                </div>
+
+                <div class="mt-4">
+                    <div class="result-box res-risk"><span>Risk Amount:</span><span id="outRisk2">$0.00</span></div>
+                    <div id="tpResults2"></div>
+                    <div class="total-highlight">TOTAL SCALING PROFIT: <span id="totalP2">$0.00</span><span class="total-pct" id="totalPct2">Account Profit: 0.00%</span></div>
+                    <div class="result-box res-info"><span>Lot Size:</span><span id="lot2">0.000000</span></div>
+                    <div class="result-box res-margin"><span>Margin Required:</span><span id="margin2">$0.00</span></div>
+                    <div class="result-box res-info" style="font-size: 0.8rem; opacity: 0.7;"><span>Est. Fees (0.035%):</span><span id="fee2">$0.00</span></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <div style="text-align: center; margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 10px;">Visitor Statistics</p>
+        <a href="https://www.flagcounter.me/details/gub"><img src="https://www.flagcounter.me/gub/" alt="Flag Counter"></a>
+        </div>
+</div>
 
+<script>
+    function balance(idx, pre) {
+        let s = 0;
+        for (let i = 1; i <= idx; i++) {
+            let v = parseFloat(document.getElementById(pre + i).value) || 0;
+            if (s + v > 100) { v = 100 - s; document.getElementById(pre + i).value = v.toFixed(1); }
+            s += v;
+        }
+        let rem = 100 - s;
+        let steps = 4 - idx;
+        if (steps > 0) {
+            let sh = (rem / steps).toFixed(1);
+            for (let i = idx + 1; i <= 4; i++) {
+                document.getElementById(pre + i).value = (i === 4) ? rem.toFixed(1) : sh;
+                rem -= parseFloat(sh);
+            }
+        }
+    }
+
+    function generateTPRows(risk, tps, partials, containerId) {
+        let html = '';
+        let totalScaling = 0;
+        tps.forEach((r, i) => {
+            const p = partials[i] / 100;
+            const full = risk * r;
+            const scaling = p > 0 ? full * p : 0;
+            totalScaling += scaling;
+            html += `<div class="result-box res-tp">
+                        <span>TP${i+1} (100% / Partial):</span>
+                        <span>$${full.toFixed(2)} / $${scaling.toFixed(2)}</span>
+                    </div>`;
+        });
+        document.getElementById(containerId).innerHTML = html;
+        return totalScaling;
+    }
+
+    function calc1() {
+        const acc = parseFloat(document.getElementById("acc1").value);
+        const riskAmt = (acc * parseFloat(document.getElementById("risk1").value)) / 100;
+        const sl = parseFloat(document.getElementById("sl1").value);
+        const lev = parseFloat(document.getElementById("lev1").value);
+        const pos = (riskAmt * 100) / sl;
+
+        document.getElementById("outRisk1").innerText = "$" + riskAmt.toFixed(2);
+        document.getElementById("pos1").innerText = "$" + pos.toFixed(2);
+        document.getElementById("margin1").innerText = "$" + (pos / lev).toFixed(2);
+
+        const tps = [1,2,3,4].map(i => parseFloat(document.getElementById(`tp1_${i}`).value));
+        const partials = [1,2,3,4].map(i => parseFloat(document.getElementById(`p1_${i}`).value));
+        
+        const totalScaling = generateTPRows(riskAmt, tps, partials, "tpResults1");
+        document.getElementById("totalP1").innerText = "$" + totalScaling.toFixed(2);
+        document.getElementById("totalPct1").innerText = "Account Profit: " + ((totalScaling / acc) * 100).toFixed(2) + "%";
+    }
+
+    async function calc2() {
+        const acc = parseFloat(document.getElementById("acc2").value);
+        const riskAmt = (acc * parseFloat(document.getElementById("risk2").value)) / 100;
+        const slP = parseFloat(document.getElementById("sl2").value);
+        const pair = document.getElementById("pair").value;
+        
+        const res = await fetch(`https://api.bybit.com/v5/market/tickers?category=linear&symbol=${pair}`);
+        const data = await res.json();
+        const price = parseFloat(data.result.list[0].lastPrice);
+
+        const slDist = price * (slP / 100);
+        const lot = riskAmt / slDist;
+        const fee = (lot * price * 0.00035 * 2);
+
+        document.getElementById("outRisk2").innerText = "$" + riskAmt.toFixed(2);
+        document.getElementById("lot2").innerText = lot.toFixed(6);
+        document.getElementById("margin2").innerText = "$" + ((lot * price) / 5).toFixed(2); // Based on 5x leverage for prop
+        document.getElementById("fee2").innerText = "$" + fee.toFixed(2);
+
+        const tps = [1, 2, 3, 4]; // Fixed R-multiples for Breakout
+        const partials = [1,2,3,4].map(i => parseFloat(document.getElementById(`p2_${i}`).value));
+        
+        // Custom logic for Breakout TP display (subtracting fees)
+        let html = '';
+        let totalScaling = 0;
+        tps.forEach((r, i) => {
+            const p = partials[i] / 100;
+            const fullProfit = (slDist * r * lot) - fee;
+            const scaling = p > 0 ? fullProfit * p : 0;
+            totalScaling += scaling;
+            html += `<div class="result-box res-tp">
+                        <span>TP${i+1} (${r}R) (100% / Partial):</span>
+                        <span>$${fullProfit.toFixed(2)} / $${scaling.toFixed(2)}</span>
+                    </div>`;
+        });
+        document.getElementById("tpResults2").innerHTML = html;
+        document.getElementById("totalP2").innerText = "$" + totalScaling.toFixed(2);
+        document.getElementById("totalPct2").innerText = "Account Profit: " + ((totalScaling / acc) * 100).toFixed(2) + "%";
+    }
+
+    document.getElementById("lock1").addEventListener("change", function() {
+        if(this.checked) document.getElementById("risk1").value = 1;
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
