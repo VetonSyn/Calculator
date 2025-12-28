@@ -17,6 +17,7 @@
             --accent-blue: #2f80ed;
             --accent-red: #f84960;
             --accent-green: #02c076;
+            --accent-orange: #f39c12;
             --border-color: #2b2f36;
             --text-muted: #848e9c;
             --input-bg: #1e222a;
@@ -25,31 +26,12 @@
         body { background-color: var(--bg-main); color: #eaecef; font-family: 'Inter', sans-serif; padding-bottom: 3rem; overflow-x: hidden; }
         .container { max-width: 950px; margin-top: 2rem; }
 
-        /* Modern Loading Overlay */
         #loader {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: var(--bg-main); display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 9999;
             transition: opacity 0.5s ease;
-            min-height: 100vh;
-            min-width: 100vw;
-            box-sizing: border-box;
-            padding: 0 10vw;
         }
-                @media (max-width: 600px) {
-                    #loader {
-                        padding: 0 5vw;
-                    }
-                    .loader-spinner {
-                        width: 38px;
-                        height: 38px;
-                    }
-                    .loader-text {
-                        font-size: 1rem;
-                        text-align: center;
-                        word-break: break-word;
-                    }
-                }
         .loader-spinner {
             width: 50px; height: 50px; border: 3px solid rgba(47, 128, 237, 0.1);
             border-top: 3px solid var(--accent-blue); border-radius: 50%;
@@ -74,9 +56,41 @@
         .res-row { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 12px 20px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid transparent; }
         .res-row.tp { border-left-color: var(--accent-green); }
         .res-row.pos { border-left-color: var(--accent-blue); }
+        
+        /* Highlight styles */
+        .highlight-r { color: var(--accent-orange); font-weight: 700; }
+        .highlight-pct { color: var(--accent-orange); font-weight: 600; }
+        .scaling-box { text-align: right; }
 
-        .total-profit-box { background: #02c076; border-radius: 8px; padding: 18px; text-align: center; margin: 15px 0; font-weight: 800; text-transform: uppercase; }
-        .total-profit-box span, .total-profit-box small { color: #ffffff !important; display: block; }
+        /* Modernized Profit Box */
+        .total-profit-box {
+            background: linear-gradient(135deg, #02a163 0%, #02c076 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(2, 192, 118, 0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .profit-item { text-align: center; }
+        .profit-label { 
+            display: block; 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            color: rgba(255,255,255,0.8) !important;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .profit-value { 
+            display: block; 
+            font-size: 1.4rem; 
+            font-weight: 800; 
+            color: #ffffff !important;
+        }
+        .profit-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.2); }
 
         .api-status { background: rgba(255,255,255,0.02); border-radius: 8px; padding: 8px 15px; font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border-color); }
         .api-status b { color: var(--accent-green); }
@@ -97,11 +111,11 @@
 
 <div class="container">
     <ul class="nav nav-tabs" id="calcTabs" role="tablist">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#normal" type="button">Normal Crypto Calculator</button></li>
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#normal" type="button">Crypto Calculator</button></li>
         <li class="nav-item">
             <button class="nav-link d-flex align-items-center" data-bs-toggle="tab" data-bs-target="#breakout" type="button" style="gap:8px;">
                 <img src="https://github.com/VetonSyn/Calculator/blob/main/breakpropicon.png?raw=true" alt="breakout icon" style="width:20px; height:20px; object-fit:contain; display:block;">
-                Breakout Prop Lot Calculator
+                Breakout Prop
             </button>
         </li>
     </ul>
@@ -118,7 +132,7 @@
                             <div class="input-group-text"><input type="checkbox" id="lock1" class="form-check-input me-2" onchange="toggleRisk(1)"> 3%</div>
                         </div>
                     </div>
-                    <div class="col-md-4"><label class="form-label">Stoploss %</label><input type="number" class="form-control" id="sl1" value="0.6" oninput="calc1()"></div>
+                    <div class="col-md-4"><label class="form-label">Stoploss %</label><input type="number" class="form-control" id="sl1" value="0.6" step="0.1" oninput="calc1()"></div>
                     
                     <div class="col-md-3"><label class="form-label">TP1(R) | %</label><div class="input-group"><input type="number" class="form-control" id="tp1_r1" oninput="saveNormal();calc1()"><input type="number" class="form-control" id="p1_1" oninput="balance(1,'p1_');saveNormal();calc1()"></div></div>
                     <div class="col-md-3"><label class="form-label">TP2(R) | %</label><div class="input-group"><input type="number" class="form-control" id="tp1_r2" oninput="saveNormal();calc1()"><input type="number" class="form-control" id="p1_2" oninput="balance(2,'p1_');saveNormal();calc1()"></div></div>
@@ -131,10 +145,19 @@
                 <div class="mt-4">
                     <div class="res-row" style="border-left-color: var(--accent-red);"><span>Risk Amount:</span><b id="riskAmt1">$0.00</b></div>
                     <div id="tpContainer1"></div>
+                    
                     <div class="total-profit-box">
-                        <span id="totalProfitText1">Total Scaling Profit: $0.00</span>
-                        <small id="accGrow1">Account Profit: 0.00%</small>
+                        <div class="profit-item">
+                            <span class="profit-label">Est. Scaling Profit</span>
+                            <span id="totalProfitText1" class="profit-value">$0.00</span>
+                        </div>
+                        <div class="profit-divider"></div>
+                        <div class="profit-item">
+                            <span class="profit-label">Scaled Acccount Growth</span>
+                            <span id="accGrow1" class="profit-value">0.00%</span>
+                        </div>
                     </div>
+
                     <div class="res-row pos"><span>Position Size:</span><span><b id="pos1">$0.00</b><i class="fas fa-copy copy-btn" onclick="copyVal('pos1')"></i></span></div>
                     <div class="res-row pos"><span>Margin Required:</span><span><b id="margin1">$0.00</b><i class="fas fa-copy copy-btn" onclick="copyVal('margin1')"></i></span></div>
                 </div>
@@ -152,7 +175,7 @@
                             <div class="input-group-text"><input type="checkbox" id="lock2" class="form-check-input me-2" onchange="toggleRisk(2)"> 3%</div>
                         </div>
                     </div>
-                    <div class="col-md-4"><label class="form-label">Stoploss %</label><input type="number" class="form-control" id="sl2" value="0.6" oninput="calc2()"></div>
+                    <div class="col-md-4"><label class="form-label">Stoploss %</label><input type="number" class="form-control" id="sl2" value="0.6" step="0.1" oninput="calc2()"></div>
                     
                     <div class="col-md-3"><label class="form-label">TP1 (R) | %</label><div class="input-group"><input type="number" class="form-control" id="tp2_r1" value="1" oninput="calc2()"><input type="number" class="form-control" id="p2_1" value="25" oninput="balance(1,'p2_');calc2()"></div></div>
                     <div class="col-md-3"><label class="form-label">TP2 (R) | %</label><div class="input-group"><input type="number" class="form-control" id="tp2_r2" value="2" oninput="calc2()"><input type="number" class="form-control" id="p2_2" value="25" oninput="balance(2,'p2_');calc2()"></div></div>
@@ -164,10 +187,19 @@
                 <div class="mt-4">
                     <div class="res-row" style="border-left-color: var(--accent-red);"><span>Risk Amount:</span><b id="riskAmt2">$0.00</b></div>
                     <div id="tpContainer2"></div>
+                    
                     <div class="total-profit-box">
-                        <span id="totalProfitText2">Total Scaling Profit: $0.00</span>
-                        <small id="accGrow2">Account Profit: 0.00%</small>
+                        <div class="profit-item">
+                            <span class="profit-label">Est. Scaling Profit</span>
+                            <span id="totalProfitText2" class="profit-value">$0.00</span>
+                        </div>
+                        <div class="profit-divider"></div>
+                        <div class="profit-item">
+                            <span class="profit-label">Scaled Acccount Growth</span>
+                            <span id="accGrow2" class="profit-value">0.00%</span>
+                        </div>
                     </div>
+
                     <div class="res-row pos"><span>Lot Size:</span><span><b id="lot2">0.0000</b><i class="fas fa-copy copy-btn" onclick="copyVal('lot2')"></i></span></div>
                     <div class="res-row pos" style="border-left-color: var(--accent-blue);"><span>Margin Required:</span><span><b id="margin2">$0.00</b><i class="fas fa-copy copy-btn" onclick="copyVal('margin2')"></i></span></div>
                     
@@ -190,7 +222,6 @@
 <script>
     let savedRisk = { 1: 1, 2: 0.5 };
 
-    // NORMAL CALCULATOR PERSISTENCE
     function saveNormal() {
         const data = {
             acc: document.getElementById('acc1').value,
@@ -213,10 +244,7 @@
     }
 
     async function initializeApp() {
-        // Simulate async loading from localStorage (Loading effect)
         await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Load Normal State
 
         const normalData = JSON.parse(localStorage.getItem('normal_calc_state'));
         if(normalData) {
@@ -226,7 +254,6 @@
             normalData.tps.forEach((val, i) => document.getElementById(`tp1_r${i+1}`).value = val);
             normalData.partials.forEach((val, i) => document.getElementById(`p1_${i+1}`).value = val);
         } else {
-            // Defaults if no saved data on localstorage
             document.getElementById('acc1').value = 1000;
             document.getElementById('risk1').value = 1;
             document.getElementById('lev1').value = 10;
@@ -234,10 +261,8 @@
             [25,25,25,25].forEach((val, i) => document.getElementById(`p1_${i+1}`).value = val);
         }
 
-        // Load Breakout Account Size
         document.getElementById('acc2').value = localStorage.getItem('savedAccSize2') || 5000;
 
-        // Remove loader and calculate
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
         calc1();
@@ -284,11 +309,15 @@
             let full = riskAmt * rMult;
             let scaled = full * (pPct / 100);
             totalScaling += scaled;
-            tpHTML += `<div class="res-row tp"><span>TP${i} (${rMult}R) (Scaling ${pPct}%):</span><span><b>$${full.toFixed(2)}</b> / <small>$${scaled.toFixed(2)}</small></span></div>`;
+            tpHTML += `
+                <div class="res-row tp">
+                    <div>TP${i} 100% (<span class="highlight-r">${rMult}R</span>) | <b>$${full.toFixed(2)}</b></div>
+                    <div class="scaling-box"><b>$${scaled.toFixed(2)}</b> | <span class="highlight-pct">${pPct}%</span></div>
+                </div>`;
         }
         document.getElementById('tpContainer1').innerHTML = tpHTML;
-        document.getElementById('totalProfitText1').innerText = `TOTAL SCALING PROFIT: $${totalScaling.toFixed(2)}`;
-        document.getElementById('accGrow1').innerText = `Account Profit: ${((totalScaling/acc)*100).toFixed(2)}%`;
+        document.getElementById('totalProfitText1').innerText = `$${totalScaling.toFixed(2)}`;
+        document.getElementById('accGrow1').innerText = `${((totalScaling/acc)*100).toFixed(2)}%`;
     }
 
     async function calc2() {
@@ -317,11 +346,15 @@
                 let full = (slDist * rMult * lot);
                 let scaled = full * (pPct / 100);
                 totalScaling += scaled;
-                tpHTML += `<div class="res-row tp"><span>TP${i} (${rMult}R) (Scaling ${pPct}%):</span><span><b>$${full.toFixed(2)}</b> / <small>$${scaled.toFixed(2)}</small></span></div>`;
+                tpHTML += `
+                    <div class="res-row tp">
+                        <div>TP${i} 100% (<span class="highlight-r">${rMult}R</span>) | <b>$${full.toFixed(2)}</b></div>
+                        <div class="scaling-box"><b>$${scaled.toFixed(2)}</b> | <span class="highlight-pct">${pPct}%</span></div>
+                    </div>`;
             }
             document.getElementById('tpContainer2').innerHTML = tpHTML;
-            document.getElementById('totalProfitText2').innerText = `TOTAL SCALING PROFIT: $${totalScaling.toFixed(2)}`;
-            document.getElementById('accGrow2').innerText = `Account Profit: ${((totalScaling/acc)*100).toFixed(2)}%`;
+            document.getElementById('totalProfitText2').innerText = `$${totalScaling.toFixed(2)}`;
+            document.getElementById('accGrow2').innerText = `${((totalScaling/acc)*100).toFixed(2)}%`;
         } catch (e) { console.error("Bybit API Error"); }
     }
 
@@ -332,7 +365,6 @@
         setTimeout(() => t.classList.remove('show'), 2000);
     }
 
-    // Start the application
     window.onload = initializeApp;
 </script>
 </body>
